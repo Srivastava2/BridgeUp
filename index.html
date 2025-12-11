@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BridgeUp - Connect with Mentors</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary: #0066cc;
+            --primary-dark: #0052a3;
+            --accent: #00d9a3;
+            --bg-light: #f8fafc;
+            --bg-dark: #1e293b;
+            --text-dark: #0f172a;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+        
+        body {
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--bg-light);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+        
+        .mentor-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mentor-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.15);
+        }
+        
+        .badge {
+            display: inline-block;
+            background-color: var(--accent);
+            color: var(--bg-dark);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .close-btn {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+        
+        .close-btn:hover {
+            color: var(--text-dark);
+        }
+        
+        .nav-active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 8px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-approved {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-confirmed {
+            background-color: #dbeafe;
+            color: #0c4a6e;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">B</span>
+                </div>
+                <h1 class="text-2xl font-bold" style="color: var(--primary);">BridgeUp</h1>
+            </div>
+            <div class="flex gap-6">
+                <button class="nav-btn nav-active" onclick="switchView('home')" style="color: var(--text-light); border: none; background: none; cursor: pointer; font-weight: 500;">Find Mentors</button>
+                <button class="nav-btn" onclick="switchView('mentor-dashboard')" style="color: var(--text-light); border: none; background: none; cursor: pointer; font-weight: 500;">Mentor Dashboard</button>
+                <button class="nav-btn" onclick="switchView('mentee-dashboard')" style="color: var(--text-light); border: none; background: none; cursor: pointer; font-weight: 500;">My Requests</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        
+        <!-- Home View - Find Mentors -->
+        <div id="home" class="tab-content active">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold mb-2">Connect with Industry Mentors</h2>
+                <p class="text-gray-600">Find experienced professionals to guide your career and academic growth</p>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="card mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <input type="text" id="searchInput" placeholder="Search by name..." class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <select id="industryFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                            <option value="">All Industries</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Education">Education</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input type="text" id="expertiseFilter" placeholder="Filter by expertise..." class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mentors Grid -->
+            <div id="mentorsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Mentors will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Mentor Dashboard -->
+        <div id="mentor-dashboard" class="tab-content">
+            <h2 class="text-3xl font-bold mb-8">Mentor Dashboard</h2>
+
+            <!-- Mentor Registration / Profile -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Create/Edit Profile -->
+                <div class="lg:col-span-2">
+                    <div class="card">
+                        <h3 class="text-xl font-bold mb-6">Create Your Mentor Profile</h3>
+                        <form id="mentorForm">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" id="mentorName" placeholder="Enter your name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="mentorEmail" placeholder="Enter your email" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Industry</label>
+                                <select id="mentorIndustry" required>
+                                    <option value="">Select an industry</option>
+                                    <option value="Technology">Technology</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="Education">Education</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Job Title</label>
+                                <input type="text" id="mentorJobTitle" placeholder="e.g., Senior Software Engineer" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Core Expertise (comma-separated, max 5)</label>
+                                <input type="text" id="mentorExpertise" placeholder="e.g., Web Development, Cloud Architecture, Team Leadership" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Bio</label>
+                                <textarea id="mentorBio" placeholder="Tell students why you want to mentor..." required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Availability Slots (one per line)</label>
+                                <textarea id="mentorAvailability" placeholder="e.g., Wednesdays 6-7 PM&#10;Saturdays 10 AM-12 PM" required></textarea>
+                            </div>
+                            <button type="submit" class="btn-primary w-full">Create Profile</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Profile Preview -->
+                <div>
+                    <div class="card">
+                        <h4 class="font-bold mb-4">Profile Preview</h4>
+                        <div id="profilePreview" style="padding: 16px; background: var(--bg-light); border-radius: 6px; font-size: 14px;">
+                            <p style="color: var(--text-light);">Fill the form to see preview</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mentee Requests -->
+            <div class="mt-12">
+                <h3 class="text-2xl font-bold mb-6">Pending Mentee Requests</h3>
+                <div id="menteeRequests" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Requests will load here -->
+                </div>
+            </div>
+
+            <!-- Scheduled Meetings -->
+            <div class="mt-12">
+                <h3 class="text-2xl font-bold mb-6">Scheduled Meetings</h3>
+                <div id="scheduledMeetings" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Meetings will load here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Mentee Dashboard -->
+        <div id="mentee-dashboard" class="tab-content">
+            <h2 class="text-3xl font-bold mb-8">My Mentorship Requests</h2>
+            <div id="menteeRequests2" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Mentee requests will load here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Mentor Detail Modal -->
+    <div id="mentorModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeMentorModal()">&times;</span>
+            <div id="mentorDetail">
+                <!-- Mentor details will load here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Mentorship Modal -->
+    <div id="requestModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeRequestModal()">&times;</span>
+            <h3 class="text-2xl font-bold mb-6">Request Mentorship</h3>
+            <form id="requestForm">
+                <div class="form-group">
+                    <label>Mentee Name</label>
+                    <input type="text" id="menteeName" placeholder="Your name" required>
+                </div>
+                <div class="form-group">
+                    <label>Mentee Email</label>
+                    <input type="email" id="menteeEmail" placeholder="Your email" required>
+                </div>
+                <div class="form-group">
+                    <label>Topic for Discussion</label>
+                    <textarea id="requestTopic" placeholder="What would you like to discuss?" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Preferred Time Slot</label>
+                    <select id="requestTimeSlot" required>
+                        <option value="">Select a time slot</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary w-full">Submit Request</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
